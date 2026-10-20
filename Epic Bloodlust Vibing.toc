@@ -1,0 +1,7 @@
+## Interface: 120000
+## Title: Epic Bloodlust Vibing
+## Notes: Plays a random song when Bloodlust is activated.
+## Author: Pankylamalol
+## Version: 1.0.0
+
+Epic Bloodlust Vibing.lua
