@@ -1,0 +1,36 @@
+name: Package WoW Addon
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create addon ZIP
+        run: |
+          mkdir -p "release/Epic Bloodlust Vibing"
+
+          cp "Epic Bloodlust Vibing.lua" \
+             "Epic Bloodlust Vibing.toc" \
+             "release/Epic Bloodlust Vibing/"
+
+          cp -R sounds "release/Epic Bloodlust Vibing/"
+
+          cd release
+          zip -r ../Epic-Bloodlust-Vibing.zip "Epic Bloodlust Vibing"
+
+      - name: Upload ZIP to GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${{ github.event.release.tag_name }}" \
+            Epic-Bloodlust-Vibing.zip --clobber
