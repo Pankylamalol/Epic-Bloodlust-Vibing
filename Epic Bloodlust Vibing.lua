@@ -1,5 +1,20 @@
 local soundFolder = "Interface\\AddOns\\Epic Bloodlust Vibing\\sounds\\"
 
+local defaults = {
+    enabled = true,
+    soundChannel = "Master",
+}
+
+if type(EpicBloodlustVibingDB) ~= "table" then
+    EpicBloodlustVibingDB = {}
+end
+for key, value in pairs(defaults) do
+    if EpicBloodlustVibingDB[key] == nil then
+        EpicBloodlustVibingDB[key] = value
+    end
+end
+local settings = EpicBloodlustVibingDB
+
 local tracks = {
     "song1.ogg",
     "song2.ogg",
@@ -35,6 +50,10 @@ local nextAllowedTime = 0
 local lockoutSeconds = 40
 
 local function playRandomTrack(shouldLockout)
+    if shouldLockout and not settings.enabled then
+        return
+    end
+
     if shouldLockout then
         local now = GetTime()
         if now < nextAllowedTime then
@@ -54,9 +73,100 @@ local function playRandomTrack(shouldLockout)
     end
     lastTrackIndex = trackIndex
 
-    local success = PlaySoundFile(soundFolder .. tracks[trackIndex], "Master")
+    local success = PlaySoundFile(soundFolder .. tracks[trackIndex], settings.soundChannel)
     if not success then
         print("|cffff5555Epic Bloodlust Vibing:|r Nepodařilo se přehrát " .. tracks[trackIndex] .. ". Zkontroluj složku sounds.")
+    end
+end
+
+local soundChannels = {
+    { value = "Master", label = "Master (Hlavní)" },
+    { value = "Music", label = "Music (Hudba)" },
+    { value = "Ambience", label = "Ambience (Prostředí)" },
+    { value = "SFX", label = "SFX (Zvukové efekty)" },
+    { value = "Dialog", label = "Dialog (Dialogy)" },
+}
+
+local soundChannelLabels = {}
+for _, channel in ipairs(soundChannels) do
+    soundChannelLabels[channel.value] = channel.label
+end
+
+local settingsFrame = CreateFrame("Frame", "EpicBloodlustVibingSettingsFrame", UIParent, "BackdropTemplate")
+settingsFrame:SetSize(380, 175)
+settingsFrame:SetPoint("CENTER")
+settingsFrame:SetFrameStrata("DIALOG")
+settingsFrame:SetMovable(true)
+settingsFrame:EnableMouse(true)
+settingsFrame:RegisterForDrag("LeftButton")
+settingsFrame:SetScript("OnDragStart", settingsFrame.StartMoving)
+settingsFrame:SetScript("OnDragStop", settingsFrame.StopMovingOrSizing)
+settingsFrame:SetBackdrop({
+    bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+    edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+    tile = true,
+    tileSize = 32,
+    edgeSize = 32,
+    insets = { left = 11, right = 12, top = 12, bottom = 11 },
+})
+settingsFrame:Hide()
+
+local title = settingsFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightLarge")
+title:SetPoint("TOP", 0, -18)
+title:SetText("Epic Bloodlust Vibing")
+
+local closeButton = CreateFrame("Button", nil, settingsFrame, "UIPanelCloseButton")
+closeButton:SetPoint("TOPRIGHT", -5, -5)
+closeButton:SetScript("OnClick", function()
+    settingsFrame:Hide()
+end)
+
+local enabledCheckbox = CreateFrame("CheckButton", nil, settingsFrame, "UICheckButtonTemplate")
+enabledCheckbox:SetPoint("TOPLEFT", 24, -55)
+local enabledLabel = settingsFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+enabledLabel:SetPoint("LEFT", enabledCheckbox, "RIGHT", 4, 0)
+enabledLabel:SetText("Přehrávat náhodné skladby při Bloodlustu")
+enabledCheckbox:SetScript("OnClick", function(self)
+    settings.enabled = self:GetChecked() and true or false
+end)
+
+local channelLabel = settingsFrame:CreateFontString(nil, "OVERLAY", "GameFontNormal")
+channelLabel:SetPoint("TOPLEFT", 28, -94)
+channelLabel:SetText("Zvukový kanál:")
+
+local channelDropdown = CreateFrame("Frame", "EpicBloodlustVibingChannelDropdown", settingsFrame, "UIDropDownMenuTemplate")
+channelDropdown:SetPoint("TOPLEFT", 15, -108)
+UIDropDownMenu_SetWidth(channelDropdown, 230)
+
+local function refreshSettingsFrame()
+    enabledCheckbox:SetChecked(settings.enabled)
+    UIDropDownMenu_SetText(channelDropdown, soundChannelLabels[settings.soundChannel])
+end
+
+UIDropDownMenu_Initialize(channelDropdown, function(_, level)
+    for _, channel in ipairs(soundChannels) do
+        local info = UIDropDownMenu_CreateInfo()
+        info.text = channel.label
+        info.value = channel.value
+        info.checked = settings.soundChannel == channel.value
+        info.func = function(button)
+            settings.soundChannel = button.value
+            refreshSettingsFrame()
+        end
+        UIDropDownMenu_AddButton(info, level)
+    end
+end)
+
+local volumeHint = settingsFrame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+volumeHint:SetPoint("TOPLEFT", 28, -148)
+volumeHint:SetText("Hlasitost nastavíš posuvníkem vybraného kanálu v nastavení zvuku WoW.")
+
+local function toggleSettingsFrame()
+    if settingsFrame:IsShown() then
+        settingsFrame:Hide()
+    else
+        refreshSettingsFrame()
+        settingsFrame:Show()
     end
 end
 
@@ -116,13 +226,16 @@ frame:SetScript("OnEvent", function(_, event, unit)
 end)
 
 SLASH_EPICBLOODLUSTVIBING1 = "/epicbloodlustvibing"
+SLASH_EPICBLOODLUSTVIBING2 = "/ebv"
 SlashCmdList.EPICBLOODLUSTVIBING = function(message)
     local command = string.lower(message or "")
     if command == "test" then
         playRandomTrack(false)
+    elseif command == "" or command == "settings" or command == "nastaveni" then
+        toggleSettingsFrame()
     else
-        print("|cff33ff99Epic Bloodlust Vibing|r: /epicbloodlustvibing test – otestuje přehrání náhodné skladby.")
+        print("|cff33ff99Epic Bloodlust Vibing|r: /epicbloodlustvibing otevře nastavení, /epicbloodlustvibing test otestuje přehrání skladby.")
     end
 end
 
-print("|cff33ff99Epic Bloodlust Vibing načten.|r Pro test použij /epicbloodlustvibing test.")
+print("|cff33ff99Epic Bloodlust Vibing načten.|r Nastavení otevřeš příkazem /epicbloodlustvibing.")

@@ -18,6 +18,13 @@ Další skladby můžeš přidat do stejné složky a jejich názvy doplnit do s
 
 Příkazem `/epicbloodlustvibing test` ve hře otestuješ přehrání náhodné skladby.
 
+## Nastavení
+
+Příkazem `/epicbloodlustvibing` (nebo zkráceně `/ebv`) otevřeš okno nastavení.
+V něm můžeš zapnout či vypnout automatické přehrávání při Bloodlustu a zvolit
+zvukový kanál. Hlasitost určuje příslušný posuvník v nastavení zvuku WoW:
+Master, Music, Ambience, SFX nebo Dialog.
+
 Addon sleduje auru lustu i navazující debuffy (Sated, Exhaustion, Temporal
 Displacement aj.) přímo na hráči, protože combat log je v nových patchích pro
 addony omezený. Combat log se používá jen jako záloha. 40sekundová ochrana
