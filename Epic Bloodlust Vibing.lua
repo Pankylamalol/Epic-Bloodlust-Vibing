@@ -2,6 +2,15 @@ local soundFolder = "Interface\\AddOns\\Epic Bloodlust Vibing\\sounds\\"
 
 local tracks = {
     "song1.ogg",
+    "song2.ogg",
+    "song3.ogg",
+    "song4.ogg",
+    "song5.ogg",
+    "song6.ogg",
+    "song7.ogg",
+    "song8.ogg",
+    "song9.ogg",
+    "song10.ogg",
 }
 
 local bloodlustSpells = {
