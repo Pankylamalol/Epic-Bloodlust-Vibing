@@ -46,12 +46,18 @@ local bloodlustSpells = {
 }
 
 local lastTrackIndex
+local currentSoundHandle
 local nextAllowedTime = 0
 local lockoutSeconds = 40
 
-local function playRandomTrack(shouldLockout)
+local function playRandomTrack(shouldLockout, stopCurrentTrack)
     if shouldLockout and not settings.enabled then
         return
+    end
+
+    if stopCurrentTrack and currentSoundHandle then
+        StopSound(currentSoundHandle)
+        currentSoundHandle = nil
     end
 
     if shouldLockout then
@@ -73,10 +79,12 @@ local function playRandomTrack(shouldLockout)
     end
     lastTrackIndex = trackIndex
 
-    local success = PlaySoundFile(soundFolder .. tracks[trackIndex], settings.soundChannel)
+    local success, soundHandle = PlaySoundFile(soundFolder .. tracks[trackIndex], settings.soundChannel)
     if not success then
         print("|cffff5555Epic Bloodlust Vibing:|r Nepodařilo se přehrát " .. tracks[trackIndex] .. ". Zkontroluj složku sounds.")
+        return
     end
+    currentSoundHandle = soundHandle
 end
 
 local soundChannels = {
@@ -230,7 +238,7 @@ SLASH_EPICBLOODLUSTVIBING2 = "/ebv"
 SlashCmdList.EPICBLOODLUSTVIBING = function(message)
     local command = string.lower(message or "")
     if command == "test" then
-        playRandomTrack(false)
+        playRandomTrack(false, true)
     elseif command == "" or command == "settings" or command == "nastaveni" then
         toggleSettingsFrame()
     else

@@ -17,6 +17,7 @@ Další skladby můžeš přidat do stejné složky a jejich názvy doplnit do s
 ## Testování
 
 Příkazem `/epicbloodlustvibing test` ve hře otestuješ přehrání náhodné skladby.
+Při opakovaném použití se předchozí testovaná skladba zastaví a začne hrát jiná.
 
 ## Nastavení
 
