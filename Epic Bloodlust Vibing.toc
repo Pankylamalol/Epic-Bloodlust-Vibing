@@ -2,7 +2,7 @@
 ## Title: Epic Bloodlust Vibing
 ## Notes: Plays a random song when Bloodlust is activated.
 ## Author: Pankylamalol
-## Version: 1.0.0
+## Version: 1.0.2
 ## SavedVariables: EpicBloodlustVibingDB
 
 Epic Bloodlust Vibing.lua

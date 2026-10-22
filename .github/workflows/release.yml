@@ -26,11 +26,11 @@ jobs:
           cp -R sounds "release/Epic Bloodlust Vibing/"
 
           cd release
-          zip -r ../Epic-Bloodlust-Vibing.zip "Epic Bloodlust Vibing"
+          zip -r "../Epic-Bloodlust-Vibing-${{ github.event.release.tag_name }}.zip" "Epic Bloodlust Vibing"
 
       - name: Upload ZIP to GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release upload "${{ github.event.release.tag_name }}" \
-            Epic-Bloodlust-Vibing.zip --clobber
+            "Epic-Bloodlust-Vibing-${{ github.event.release.tag_name }}.zip" --clobber
